@@ -1,2 +1,2 @@
 #!/bin/bash
-docker-compose -f ./docker/docker-compose_local_hpc.yml stop
+docker compose -f ./local_hpc/docker-compose_local_hpc.yml stop

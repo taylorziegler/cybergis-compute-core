@@ -1,6 +1,6 @@
 #!/bin/bash
 echo "Stopping existing docker containers"
-docker-compose -f ./docker/docker-compose_local_hpc.yml stop
+docker compose -f ./local_hpc/docker-compose_local_hpc.yml stop
 
 print_usage() {
   echo "-l [OPENCONNECT_URL] -u [OPENCONNECT_USER] -p [OPENCONNECT_PASSWORD] -g [OPENCONNECT_AUTHGROUP]"
@@ -20,7 +20,7 @@ done
 
 echo "Running local hpc"
 if [[ ! -z "${RUN_IN_BACKGROUND}" ]]; then
-  docker-compose -f ./docker/docker-compose_local_hpc.yml up -d --remove-orphans
+  docker compose -f ./local_hpc/docker-compose_local_hpc.yml up -d --remove-orphans
 else
-  docker-compose -f ./docker/docker-compose_local_hpc.yml up --remove-orphans
+  docker compose -f ./local_hpc/docker-compose_local_hpc.yml up --remove-orphans
 fi
