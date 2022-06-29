@@ -1,0 +1,3 @@
+[submodule "local_hpc/slurm-docker-cluster"]
+	path = local_hpc/slurm-docker-cluster
+	url = https://github.com/mitkotak/slurm-docker-cluster.git
