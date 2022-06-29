@@ -105,6 +105,7 @@ dist
 .DS_Store
 
 configs/*.json
+configs/*.js
 
 !configs/*.example.json
 !configs/*.ts
@@ -112,7 +113,6 @@ configs/*.json
 log/*
 !log/.gitkeep
 
-key/*
 !key/.gitkeep
 
 log/*
@@ -122,7 +122,7 @@ config.json
 
 build
 
-keys/*
+key/*
 !keys/.gitkeep
 
 production
@@ -140,3 +140,10 @@ dump.rdb
 
 !data/tmp/.gitkeep
 docker/docker
+local_hpc/user/simages/*.sif
+local_hpc/user/.local/
+local_hpc/user/.vim/
+local_hpc/user/.viminfo
+local_hpc/user/.vim/
+local_hpc/user/.bash_history
+local_hpc/user/.gitattributes

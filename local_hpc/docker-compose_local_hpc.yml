@@ -1,0 +1,168 @@
+version: "3"
+
+services:
+  mysql:
+    image: mysql:5.7
+    hostname: mysql
+    container_name: mysql
+    environment:
+      MYSQL_DATABASE: slurm_acct_db
+      MYSQL_USER: slurm
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_PASSWORD: password
+    ports:
+      - "3306:3306"
+    volumes:
+      - var_lib_mysql:/var/lib/mysql
+    networks:
+      - slurmnet
+
+  slurmdbd:
+    image: mitak2/slurm-docker-cluster:19.05.1
+    entrypoint: ["/usr/local/bin/docker-entrypoint.sh","slurmdbd"]
+    privileged: true
+    container_name: slurmdbd
+    hostname: slurmdbd
+    volumes:
+      - etc_munge:/etc/munge
+      - etc_slurm:/etc/slurm
+      - var_log_slurm:/var/log/slurm
+    expose:
+      - "6819"
+    depends_on:
+      - mysql
+    networks:
+      - slurmnet
+
+  slurmctld:
+    image: mitak2/slurm-docker-cluster:19.05.1
+    entrypoint: ["/usr/local/bin/docker-entrypoint.sh","slurmctld"]
+    privileged: true
+    container_name: slurmctld
+    hostname: slurmctld
+    volumes:
+      - etc_munge:/etc/munge
+      - etc_slurm:/etc/slurm
+      - slurm_jobdir:/data
+      - var_log_slurm:/var/log/slurm
+      - ./ssh:/home/user/.ssh
+      - ./user:/home/user
+    ports:  
+      - "6817:22"
+    depends_on:
+      - "slurmdbd"
+    networks:
+      - slurmnet
+
+  c1:
+    image: mitak2/slurm-docker-cluster:19.05.1
+    entrypoint: ["/usr/local/bin/docker-entrypoint.sh","slurmd"]
+    privileged: true
+    hostname: c1
+    container_name: c1
+    volumes:
+      - etc_munge:/etc/munge
+      - etc_slurm:/etc/slurm
+      - slurm_jobdir:/data
+      - var_log_slurm:/var/log/slurm
+      - ./ssh:/home/user/.ssh
+      - ./user:/home/user
+    expose:
+      - "6818"
+    depends_on:
+      - "slurmctld"
+    networks:
+      - slurmnet
+
+  c2:
+    image: mitak2/slurm-docker-cluster:19.05.1
+    entrypoint: ["/usr/local/bin/docker-entrypoint.sh","slurmd"]
+    privileged: true
+    hostname: c2
+    container_name: c2
+    volumes:
+      - etc_munge:/etc/munge
+      - etc_slurm:/etc/slurm
+      - slurm_jobdir:/data
+      - var_log_slurm:/var/log/slurm
+      - ./ssh:/home/user/.ssh
+      - ./user:/home/user
+    expose:
+      - "6818"
+    depends_on:
+      - "slurmctld"
+    networks:
+      - slurmnet
+  
+  job_supervisor:
+    image: zimoxiao/job_supervisor:latest
+    restart: on-failure
+    container_name: jobsupervisor
+    hostname: jobsupervisor
+    volumes:
+    - ../:/job_supervisor:rw
+    command: ["/job_supervisor/docker/docker-entrypoint.sh"]
+    privileged: true
+    ports:
+      - "3030:22"
+    sysctls:
+      - net.ipv6.conf.all.disable_ipv6=0
+    environment:
+      OPENCONNECT_PASSWORD: ${OPENCONNECT_PASSWORD}
+      OPENCONNECT_USER: ${OPENCONNECT_USER}
+      OPENCONNECT_AUTHGROUP: ${OPENCONNECT_AUTHGROUP}
+      OPENCONNECT_URL: ${OPENCONNECT_URL}
+      OPENCONNECT_MFA_CODE: ${OPENCONNECT_MFA_CODE}
+    networks:
+      - slurmnet
+
+  hub:
+    # depends_on:
+    #   - hub-db
+    restart: always
+    image: alexandermichels/dummy-jupyterhub:0.0.2
+    container_name: jupyterhub
+    volumes:
+      # Bind Docker socket on the host so we can connect to the daemon from
+      # within the container
+      - "/var/run/docker.sock:/var/run/docker.sock:rw"
+      # # Bind Docker volume on host for JupyterHub database and cookie secrets
+      # - "data:${DATA_VOLUME_CONTAINER}"
+    ports:
+      - "443:443"
+    # links:
+    #   - hub-db
+    networks:
+      - "slurmnet"
+    environment:
+      # All containers will join this network
+      DOCKER_NETWORK_NAME: custom_network
+      # JupyterHub will spawn this Notebook image for users
+      DOCKER_NOTEBOOK_IMAGE: jupyter/scipy-notebook:latest
+      # Notebook directory inside user image
+      # normally you mount a volume here, but since
+      # this is a simple instance just pass in any
+      # path that already exists
+      DOCKER_NOTEBOOK_DIR: /home/jovyan
+      # Using this run command (optional)
+      DOCKER_SPAWN_CMD: start-singleuser.sh
+      # Postgres db info
+    #   POSTGRES_DB: ${POSTGRES_DB}
+    #   POSTGRES_HOST: hub-db
+    # env_file:
+    #   - secrets/postgres.env
+    #   - secrets/oauth.env
+    command: >
+      jupyterhub -f /srv/jupyterhub/jupyterhub_config.py
+
+volumes:
+  mysql_volume:
+  etc_munge:
+  etc_slurm:
+  slurm_jobdir:
+  var_lib_mysql:
+  var_log_slurm:
+
+networks:
+  slurmnet:
+      name: custom_network

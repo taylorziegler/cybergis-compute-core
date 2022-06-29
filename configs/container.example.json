@@ -5,7 +5,9 @@
         "hpc_path": {
             "keeling_community": "/data/keeling/a/cigi-gisolve/simages/python.sif",
             "expanse_community": "/home/cybergis/SUMMA_IMAGE/python.sif",
-            "bridges_community_gpu": "/jet/home/cybergis/image/python.sif"
+            "bridges_community_gpu": "/jet/home/cybergis/image/python.sif",
+            "instant_hpc": "/jet/home/cybergis/image/python.sif",
+            "local_hpc":"/home/user/simages/python.sif"
         }
     },
     "cybergisx-0.4": {
@@ -14,7 +16,8 @@
         "hpc_path": {
             "expanse_community": "/home/cybergis/SUMMA_IMAGE/cybergisx_0.4.simg",
             "keeling_community": "/data/keeling/a/cigi-gisolve/simages/cybergisx_0.4.simg",
-	    "bridges_community_gpu": "/jet/home/cybergis/image/cybergisx_0.4.simg"
+	    "bridges_community_gpu": "/jet/home/cybergis/image/cybergisx_0.4.simg",
+        "local_hpc":"/home/user/simages/cybergisx_0.4.simg"
         }
     },
     "cjw-eb": {

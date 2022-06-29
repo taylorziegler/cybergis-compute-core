@@ -22,12 +22,18 @@ Scalable middleware framework for enabling high-performance and data-intensive g
 
 ## Server Setup
 1. Requirements
-    - Docker & Docker Compose
+    - Docker & Docker Compose (https://docs.docker.com/engine/install/)
+    - TablePlus for accessing MySQL (https://www.tableplus.com
+    - npm package manager(https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
 
 2. Initialize
     ```bash
+    #pull docker images
+    docker pull jupyter/scipy-notebook:latest && docker pull alexandermichels/dummy-jupyterhub:0.0.2 && docker pull mitak2/slurm-docker-cluster:19.05.1 && docker pull mysql:5.7 && docker pull zimoxiao/job_supervisor:latest
     git clone https://github.com/cybergis/cybergis-compute-core.git
     cd cybergis-compute-core
+    # Install npm packages
+    npm run build
     # run init script
     ./script/init.sh
     ```
@@ -44,11 +50,19 @@ Scalable middleware framework for enabling high-performance and data-intensive g
 
 4. Run server
     ```bash
-    # for development
+    # for general development
     # - run in foreground with log output
     ./script/develop-start.sh
     # - run in background, add -b background failing
     ./script/develop-start.sh -b
+    # for local development
+    #generate keys
+    ssh-keygen -t rsa -f path_to_cybergis-compute-core/keys # Find path to core by typing ``pwd``
+    cat path_to_cybergis-compute-core/keys/id_rsa.pub >> path_to_cybergis-compute-core/local_hpc/ssh/authorized_keys
+    # - run in foreground with log output
+    ./script/develop-start_local.sh
+    # - run in background, add -b background failing
+    ./script/develop-start_local.sh -b 
     # - some HPC requires university network
     # - to connect to a University VPN, add the AnyConnect options
     ./script/develop-start.sh -l vpn.cites.illinois.edu -u NetID -p "password" -g 5_SplitTunnel_NoPrivate
@@ -59,7 +73,10 @@ Scalable middleware framework for enabling high-performance and data-intensive g
 
 5. Stop all running containers
     ```bash
+    # general deployment
     ./script/stop.sh
+    # local deployment
+    ./script/stop_local_hpc.sh
     ```
 
 ***
@@ -98,6 +115,30 @@ Scalable middleware framework for enabling high-performance and data-intensive g
         }
     }
     ```
+
+    - local_hpc example
+    ```json
+        "local_hpc": {
+        "ip": "slurmctld",
+        "port": 22,
+        "is_community_account": true,
+        "community_login": {
+            "user": "user",
+            "use_local_key": false,
+            "external_key": {
+                "private_key_path": "/job_supervisor/keys/id_rsa",
+                "passphrase": "password"
+            }
+        },
+        "root_path": "/home/user",
+        "job_pool_capacity": 10,
+        "globus": {
+        },
+        "init_sbatch_options": [
+        ]
+    }
+    ```
+
 
 2. Maintainer configurations are located at `configs/maintainer.json`
     - example maintainer with user upload file
@@ -138,6 +179,29 @@ Scalable middleware framework for enabling high-performance and data-intensive g
         }
     }
     ```
+## Adding Github Repo to MySQL Server
+
+- Creating MySQL connection in TablePlus(https://www.tableplus.com)
+
+    - Name : Docker DB
+    - Host : 0.0.0.0
+    - User : slurm
+    - Password : password
+    - Port : 3306
+    - Database : slurm_acct_db
+    - SSL mode : DISABLED
+
+- Adding hello world repo to MySQL server
+
+    Once `Job` object is instantiated for the first time, a new table called gits is automatically created in the MySQL server. The following entries need to be filled in if we are interested in running `https://github.com/cybergis/cybergis-compute-hello-world.git`
+
+        - id : hello_world
+        - address : https://github.com/cybergis/cybergis-compute-hello-world.git
+        - sha : NULL (do not edit)
+        - isApproved : 1
+        - isCreatedAt : 1
+        - isUpdatedAt : 1
+        - isDeletedAt : NULL (do not edit)
 
 ## Related Documentations
 - [CyberGIS Compute Python SDK](https://github.com/cybergis/cybergis-compute-python-sdk)
