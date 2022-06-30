@@ -25,3 +25,4 @@ cp -i ./configs/hpc.example.json ./configs/hpc.json
 cp -i ./configs/maintainer.example.json ./configs/maintainer.json
 cp -i ./configs/jupyter-globus-map.example.json ./configs/jupyter-globus-map.json
 cp -i ./configs/container.example.json ./configs/container.json
+cp -i ./configs/whitelist.example.json ./configs/whitelist.json
