@@ -63,8 +63,6 @@ Scalable middleware framework for enabling high-performance and data-intensive g
     ./script/develop-start_local.sh
     # - run in background, add -b background failing
     ./script/develop-start_local.sh -b 
-    # register database
-    ./local_hpc/register_cluster.sh
     # - some HPC requires university network
     # - to connect to a University VPN, add the AnyConnect options
     ./script/develop-start.sh -l vpn.cites.illinois.edu -u NetID -p "password" -g 5_SplitTunnel_NoPrivate
