@@ -48,6 +48,13 @@ Scalable middleware framework for enabling high-performance and data-intensive g
        - `private_key_path`
        - `passphrase` (if required)
 
+4. Save relevant singularity image container
+```bash
+    cd local_hpc/user
+    mkdir simages
+    # Put your singularity container (e.g python.sif) inside simages
+```
+
 4. Run server
     ```bash
     # for general development
@@ -77,7 +84,7 @@ Scalable middleware framework for enabling high-performance and data-intensive g
     # general deployment
     ./script/stop.sh
     # local deployment
-    ./script/stop_local_hpc.sh
+    ./script/stop_local.sh
     ```
 
 ***
@@ -198,11 +205,11 @@ Scalable middleware framework for enabling high-performance and data-intensive g
 
         - id : hello_world
         - address : https://github.com/cybergis/cybergis-compute-hello-world.git
-        - sha : NULL (do not edit)
+        - sha : NULL (DO NOT EDIT)
         - isApproved : 1
         - isCreatedAt : 1
         - isUpdatedAt : 1
-        - isDeletedAt : NULL (do not edit)
+        - isDeletedAt : NULL (DO NOT EDIT)
 
 ## Related Documentations
 - [CyberGIS Compute Python SDK](https://github.com/cybergis/cybergis-compute-python-sdk)
