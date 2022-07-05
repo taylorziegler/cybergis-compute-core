@@ -57,6 +57,7 @@ Scalable middleware framework for enabling high-performance and data-intensive g
     ./script/develop-start.sh -b
     # for local development
     #generate keys
+    mkdir keys
     ssh-keygen -t rsa -f path_to_cybergis-compute-core/keys/id_rsa # Find path to core by typing ``pwd``
     cat path_to_cybergis-compute-core/keys/id_rsa.pub >> path_to_cybergis-compute-core/local_hpc/ssh/authorized_keys
     # - run in foreground with log output

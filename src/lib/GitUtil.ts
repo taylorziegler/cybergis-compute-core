@@ -50,7 +50,7 @@ export default class GitUtil {
             post_processing_stage: undefined,
             description: 'none',
             estimated_runtime: 'unknown',
-            supported_hpc: ['keeling_community'],
+            supported_hpc: ['local_hpc','keeling_community'],
             default_hpc: undefined,
             repository: git.address,
             require_upload_data: false,
