@@ -417,19 +417,30 @@ app.post('/folder/:folderId/download/globus-init', async function (req, res) {
     const folderId = req.params.folderId
     const connection = await db.connect()
     const folder = await connection.getRepository(Folder).findOneOrFail(folderId)
-    if (!folder) throw new Error(`cannot find folder with id ${folderId}`)
+    if (!folder) {
+        res.status(403).json({ error: `cannot find folder with id ${folderId}`}); return
+    }
     const existingTransferJob = await globusTaskList.get(folderId)
-    if (existingTransferJob) throw new Error(`a globus job is currently running on folder with id ${folderId}`)
+    if (existingTransferJob) {
+        res.status(403).json({ error: `a globus job is currently running on folder with id ${folderId}` }); return
+    }
     // get jupyter globus config
-    const jupyterGlobus = jupyterGlobusMap[folder.hpc]
-    if (!jupyterGlobus) throw new Error(`cannot find hpc ${folder.hpc}`)
-    // init transfer 
-    const from = { path: folder.path, endpoint: jupyterGlobus.endpoint }
-    const to = { path: body.path, endpoint: body.endpoint }
     const hpcConfig = hpcConfigMap[folder.hpc]
-    const globusTaskId = await GlobusUtil.initTransfer(from, to, hpcConfig, `download-folder-${folder.id}`)
-    await globusTaskList.put(folderId, globusTaskId)
-    res.json({ globus_task_id: globusTaskId })
+    if (!hpcConfig) {
+        res.status(403).json({ error: `cannot find hpc ${folder.hpc}` }); return
+    }
+    // init transfer 
+    const fromPath = body.fromPath ? path.join(folder.path, body.fromPath) : folder.path
+    const from = { path:  fromPath, endpoint: hpcConfig.globus.endpoint }
+    const to = { path: body.toPath, endpoint: body.toEndpoint }
+    console.log(from, to)
+    try {
+        const globusTaskId = await GlobusUtil.initTransfer(from, to, hpcConfig, `download-folder-${folder.id}`)
+        await globusTaskList.put(folderId, globusTaskId)
+        res.json({ globus_task_id: globusTaskId })
+    } catch (err) {
+        res.status(403).json({ error: `failed to init globus with error: ${err.toString()}` }); return
+    }
 })
 
 app.get('/folder/:folderId/download/globus-status', async function (req, res) {
@@ -446,12 +457,18 @@ app.get('/folder/:folderId/download/globus-status', async function (req, res) {
     const folderId = req.params.folderId
     const connection = await db.connect()
     const folder = await connection.getRepository(Folder).findOneOrFail(folderId)
-    if (!folder) throw new Error(`cannot find folder with id ${folderId}`)
+    if (!folder) {
+        res.status(403).json({ error: `cannot find folder with id ${folderId}` }); return
+    }
     // query status
     const globusTaskId = await globusTaskList.get(folderId)
-    const status = await GlobusUtil.queryTransferStatus(globusTaskId, hpcConfigMap[folder.hpc])
-    if (['SUCCEEDED', 'FAILED'].includes(status)) await globusTaskList.remove(folderId)
-    res.json({ status: status })
+    try {
+        const status = await GlobusUtil.queryTransferStatus(globusTaskId, hpcConfigMap[folder.hpc])
+        if (['SUCCEEDED', 'FAILED'].includes(status)) await globusTaskList.remove(folderId)
+        res.json({ status: status })
+    } catch (err) {
+        res.status(403).json({ error: `failed to query globus with error: ${err.toString()}` }); return
+    }
 })
 
 // job
@@ -516,11 +533,15 @@ app.put('/job/:jobId', async function (req, res) {
         const connection = await db.connect()
         await connection.getRepository(Job).findOneOrFail({ id: jobId, userId: res.locals.username })
         // update
-        await connection.createQueryBuilder()
-            .update(Job)
-            .where('id = :id', { id:  jobId })
-            .set(await prepareDataForDB(body, ['param', 'env', 'slurm', 'localExecutableFolder', 'localDataFolder', 'remoteDataFolder', 'remoteExecutableFolder']))
-            .execute()
+        try {
+            await connection.createQueryBuilder()
+                .update(Job)
+                .where('id = :id', { id:  jobId })
+                .set(await prepareDataForDB(body, ['param', 'env', 'slurm', 'localExecutableFolder', 'localDataFolder', 'remoteDataFolder', 'remoteExecutableFolder']))
+                .execute()
+        } catch (err) {
+            res.status(403).json({ error: "internal error", messages: err.toString() }); return
+        }
         // return updated job
         const job =  await connection.getRepository(Job).findOne(jobId)
         res.json(Helper.job2object(job))

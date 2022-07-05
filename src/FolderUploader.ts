@@ -86,16 +86,16 @@ export class GlobusFolderUploader extends BaseFolderUploader {
         if (!this.hpcConfig) throw new Error(`cannot find hpcConfig with name ${hpcName}`)
         if (!this.hpcConfig.globus) throw new Error(`cannot find hpcConfig.globus with name ${hpcName}`)
 
-        this.path = path.join(this.hpcConfig.globus.root_path, this.id)
+        this.path = path.join(this.hpcConfig.root_path, this.id)
         this.from = from
         this.to = {
             endpoint: this.hpcConfig.globus.endpoint,
-            path: this.path
+            path: path.join(this.hpcConfig.globus.root_path, this.id)
         }
     }
 
     async upload() {
-        this.taskId = await GlobusUtil.initTransfer(this.from, this.to, this.hpcConfig)
+        this.taskId = await GlobusUtil.initTransfer(this.from, this.to, this.hpcConfig, this.id)
         const status = await GlobusUtil.monitorTransfer(this.taskId, this.hpcConfig)
         if (status.includes('FAILED')) {
             this.isComplete = true
