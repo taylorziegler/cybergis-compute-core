@@ -56,7 +56,7 @@ Scalable middleware framework for enabling high-performance and data-intensive g
 
 4. Load relevant singularity image container
 ```bash
-    cd local_hpc/user
+    mkdir local_hpc/user && cd local_hpc/user
     mkdir simages
     # Put your singularity container (e.g python.sif) inside simages
 ```
