@@ -1,4 +1,4 @@
-import { hpcConfigMap } from "../configs/config"
+import { hpcConfigMap, jupyterGlobusMap } from "../configs/config"
 import BaseConnector from "./connectors/BaseConnector"
 import DB from "./DB"
 import * as fs from "fs"
@@ -18,9 +18,7 @@ type Connector = BaseConnector | SlurmConnector | SingularityConnector
 export class BaseFolderUploader {
     public id: string
 
-    public hpcPath: string
-
-    public globusPath: string
+    public path: string
 
     public hpcName: string
 
@@ -43,8 +41,6 @@ export class BaseFolderUploader {
         this.isComplete = false
         this.isFailed = false
         this.db = new DB()
-        this.hpcPath = path.join(this.hpcConfig.root_path, this.id)
-        this.globusPath = path.join(this.hpcConfig.globus.root_path, this.id)
     }
 
     async upload() {
@@ -55,8 +51,7 @@ export class BaseFolderUploader {
         const connection = await this.db.connect()
         const folder = new Folder()
         folder.id = this.id
-        folder.hpcPath = this.hpcPath
-        folder.globusPath = this.globusPath
+        folder.path = this.path
         folder.hpc = this.hpcName
         folder.userId = this.userId
         await connection.getRepository(Folder).save(folder)
@@ -72,7 +67,8 @@ export class EmptyFolderUploader extends BaseFolderUploader {
     }
 
     async upload() {
-        await this.connector.mkdir(this.hpcPath, {}, true)
+        this.path = path.join(this.hpcConfig.root_path, this.id)
+        await this.connector.mkdir(this.path, {}, true)
         await this.register()
         this.isComplete = true
     }
@@ -90,10 +86,11 @@ export class GlobusFolderUploader extends BaseFolderUploader {
         if (!this.hpcConfig) throw new Error(`cannot find hpcConfig with name ${hpcName}`)
         if (!this.hpcConfig.globus) throw new Error(`cannot find hpcConfig.globus with name ${hpcName}`)
 
+        this.path = path.join(this.hpcConfig.root_path, this.id)
         this.from = from
         this.to = {
             endpoint: this.hpcConfig.globus.endpoint,
-            path: this.globusPath
+            path: path.join(this.hpcConfig.globus.root_path, this.id)
         }
     }
 
@@ -123,6 +120,7 @@ export class LocalFolderUploader extends BaseFolderUploader {
     constructor(from: LocalFolder, hpcName: string, userId: string, connector: Connector = null) {
         super(hpcName, userId)
         this.localPath = from.localPath
+        this.path = path.join(this.hpcConfig.root_path, this.id)
         this.connector = connector ?? new BaseConnector(hpcName)
     }
 
@@ -131,7 +129,7 @@ export class LocalFolderUploader extends BaseFolderUploader {
             throw new Error(`could not find folder under path ${this.localPath}`)
         }
         const from = await FolderUtil.getZip(this.localPath)
-        const to = this.hpcPath
+        const to = this.path
         await this.connector.upload(from, to, false)
         await FolderUtil.removeZip(from)
         await this.register()

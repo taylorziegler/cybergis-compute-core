@@ -11,13 +11,10 @@ export class Folder {
     name: string
 
     @Column()
+    path: string
+
+    @Column()
     hpc: string
-
-    @Column()
-    hpcPath: string
-
-    @Column()
-    globusPath: string
 
     @Column({ nullable: true })
     userId: string
