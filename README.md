@@ -34,7 +34,7 @@ Scalable middleware framework for enabling high-performance and data-intensive g
     cd cybergis-compute-core
     # Install npm packages
     npm run build
-    # run init script
+    # Check the configs in configs/ folder and if everything looks good run init script
     ./script/init.sh
     ```
 
@@ -76,6 +76,7 @@ Scalable middleware framework for enabling high-performance and data-intensive g
         #generate keys
         mkdir keys
         ssh-keygen -t rsa -f path_to_cybergis-compute-core/keys/id_rsa # Find path to core by typing ``pwd``
+        # PLEASE MAKE SURE THAT YOU CHOOSE THE EMPTY PHRASE OPTION
         cat path_to_cybergis-compute-core/keys/id_rsa.pub >> path_to_cybergis-compute-core/local_hpc/ssh/authorized_keys
         # - run in foreground with log output
         ./script/develop-start-local.sh

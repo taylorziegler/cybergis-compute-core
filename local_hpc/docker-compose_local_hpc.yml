@@ -100,7 +100,7 @@ services:
     container_name: jobsupervisor
     hostname: jobsupervisor
     volumes:
-    - ../:/job_supervisor:rw
+      - ../:/job_supervisor:rw
     command: ["/job_supervisor/docker/docker-entrypoint.sh"]
     privileged: true
     ports:

@@ -112,7 +112,7 @@
             "use_local_key": false,
             "external_key": {
                 "private_key_path": "/job_supervisor/keys/id_rsa",
-                "passphrase": "password"
+                "passphrase": ""
             }
         },
         "root_path": "/home/user",

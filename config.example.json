@@ -11,11 +11,11 @@
         "password": null
     },
     "mysql": {
-        "host": "db",
+        "host": "mysql",
         "port": 3306,
-        "database": "cybergis_compute",
-        "username": "cybergis_compute",
-        "password": "XXXXXXXXXXXXXXXXXXXXXXXXXXX"
+        "database": "slurm_acct_db",
+        "username": "root",
+        "password": "password"
     },
     "local_file_system": {
         "limit_in_mb": 100,
