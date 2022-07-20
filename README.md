@@ -1,5 +1,7 @@
 # CyberGIS Compute Core
-Scalable middleware framework for enabling high-performance and data-intensive geospatial research and education on CyberGISX. 
+Scalable middleware framework for enabling high-performance and data-intensive geospatial research and education on CyberGISX.
+
+![alt text](images/cybergis-architecture.png "CybergGIS Compute Core Architecture")
 
 ## Supported Git Projects
 | Name                                  | URL                                                                              |
