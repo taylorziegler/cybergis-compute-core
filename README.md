@@ -21,12 +21,12 @@ Scalable middleware framework for enabling high-performance and data-intensive g
 | XSEDE Expanse             | expanse_community | San Diego Supercomputer Center                                                                   |
 
 ## Server Setup
-1. Requirements
+1. External Software Installations
     - Docker & Docker Compose (https://docs.docker.com/engine/install/)
     - TablePlus for accessing MySQL (https://www.tableplus.com
     - npm package manager(https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
 
-2. Initialize
+2. Initialize core by pulling docker images and installing node-js packages.
     ```bash
     #pull docker images
     docker pull jupyter/scipy-notebook:latest && docker pull alexandermichels/dummy-jupyterhub:0.0.2 && docker pull mitak2/slurm-docker-cluster:19.05.1 && docker pull mysql:5.7 && docker pull zimoxiao/job_supervisor:latest
@@ -38,7 +38,7 @@ Scalable middleware framework for enabling high-performance and data-intensive g
     ./script/init.sh
     ```
 
-3. Configure the following options
+3. Configure hpc parameters (Not required for Local HPC setup)
    - config.json
      - `local_key`
        - `private_key_path`
@@ -48,33 +48,50 @@ Scalable middleware framework for enabling high-performance and data-intensive g
        - `private_key_path`
        - `passphrase` (if required)
 
-4. Save relevant singularity image container
+4. Load relevant singularity image container
 ```bash
     cd local_hpc/user
     mkdir simages
     # Put your singularity container (e.g python.sif) inside simages
 ```
 
-4. Run server
+4. The server is initialized using bash scripts. These bash scripts use docker compose to to run all of the containers.
+
+    - General Development on HPC
     ```bash
     # for general development
     # - run in foreground with log output
     ./script/develop-start.sh
     # - run in background, add -b background failing
     ./script/develop-start.sh -b
-    # for local development
-    #generate keys
-    mkdir keys
-    ssh-keygen -t rsa -f path_to_cybergis-compute-core/keys/id_rsa # Find path to core by typing ``pwd``
-    cat path_to_cybergis-compute-core/keys/id_rsa.pub >> path_to_cybergis-compute-core/local_hpc/ssh/authorized_keys
-    # - run in foreground with log output
-    ./script/develop-start_local.sh
-    # - run in background, add -b background failing
-    ./script/develop-start_local.sh -b 
     # - some HPC requires university network
     # - to connect to a University VPN, add the AnyConnect options
     ./script/develop-start.sh -l vpn.cites.illinois.edu -u NetID -p "password" -g 5_SplitTunnel_NoPrivate
+    ```
 
+    - Local Development
+        - Running the server
+        ```bash
+        # for local development
+        #generate keys
+        mkdir keys
+        ssh-keygen -t rsa -f path_to_cybergis-compute-core/keys/id_rsa # Find path to core by typing ``pwd``
+        cat path_to_cybergis-compute-core/keys/id_rsa.pub >> path_to_cybergis-compute-core/local_hpc/ssh/authorized_keys
+        # - run in foreground with log output
+        ./script/develop-start-local.sh
+        # - run in background, add -b background failing
+        ./script/develop-start-local.sh -b
+        ```
+        - Checking that server is working alright. Make sure you allow 5 minutes for the server to fully initialize.
+        ```bash
+        # Fire up a new terminal and type
+        docker container ls
+        ```
+        The output should be similar to 
+        ![alt text](images/container_running.png "Running Containers")
+
+    - Production Deployment
+    ```bash
     # for production server only
     ./script/production-start.sh
     ```
@@ -84,8 +101,32 @@ Scalable middleware framework for enabling high-performance and data-intensive g
     # general deployment
     ./script/stop.sh
     # local deployment
-    ./script/stop_local.sh
+    ./script/stop-local.sh
     ```
+
+## Adding Github Repo to MySQL Server
+
+- Creating MySQL connection in TablePlus (https://www.tableplus.com)
+
+    - Name : Docker DB
+    - Host : 0.0.0.0
+    - User : slurm
+    - Password : password
+    - Port : 3306
+    - Database : slurm_acct_db
+    - SSL mode : DISABLED
+
+- Adding hello world repo to MySQL server
+
+    Once `Job` object is instantiated for the first time, a new table called gits is automatically created in the MySQL server. The following entries need to be filled in if we are interested in running `https://github.com/cybergis/cybergis-compute-hello-world.git`
+
+        - id : hello_world
+        - address : https://github.com/cybergis/cybergis-compute-hello-world.git
+        - sha : NULL (DO NOT EDIT)
+        - isApproved : 1
+        - isCreatedAt : 1
+        - isUpdatedAt : 1
+        - isDeletedAt : NULL (DO NOT EDIT)
 
 ***
 
@@ -187,29 +228,6 @@ Scalable middleware framework for enabling high-performance and data-intensive g
         }
     }
     ```
-## Adding Github Repo to MySQL Server
-
-- Creating MySQL connection in TablePlus(https://www.tableplus.com)
-
-    - Name : Docker DB
-    - Host : 0.0.0.0
-    - User : slurm
-    - Password : password
-    - Port : 3306
-    - Database : slurm_acct_db
-    - SSL mode : DISABLED
-
-- Adding hello world repo to MySQL server
-
-    Once `Job` object is instantiated for the first time, a new table called gits is automatically created in the MySQL server. The following entries need to be filled in if we are interested in running `https://github.com/cybergis/cybergis-compute-hello-world.git`
-
-        - id : hello_world
-        - address : https://github.com/cybergis/cybergis-compute-hello-world.git
-        - sha : NULL (DO NOT EDIT)
-        - isApproved : 1
-        - isCreatedAt : 1
-        - isUpdatedAt : 1
-        - isDeletedAt : NULL (DO NOT EDIT)
 
 ## Related Documentations
 - [CyberGIS Compute Python SDK](https://github.com/cybergis/cybergis-compute-python-sdk)
