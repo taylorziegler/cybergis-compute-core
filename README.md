@@ -272,6 +272,23 @@ Type ``localhost:443`` in your browser to open jupyter interface. User ``admin``
         "is_testing": true
     }
     ```
+## Debugging
+    
+1. `npm` related errors :
+    Try removing `node_modules` and then reinstalling all
+    of the packages
+    ```bash
+    rm -rf node_modules  # removes the modules
+    npm install && npm build  # installes packages and builds core 
+    ```
+
+2. Database related issues:
+   While the containers are running, execute the `register_cluster.sh` script
+   ```bash
+   . /local_hpc/register_cluster.sh
+   ```
+
+
 ## Related Documentations
 - [CyberGIS Compute Python SDK](https://github.com/cybergis/cybergis-compute-python-sdk)
 - [CyberGIS Compute Example Hello World Project](https://github.com/cybergis/cybergis-compute-hello-world)
