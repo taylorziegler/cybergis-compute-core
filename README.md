@@ -4,6 +4,8 @@ Scalable middleware framework for enabling high-performance and data-intensive g
 
 ![alt text](images/cybergis-architecture.png "CybergGIS Compute Core Architecture")
 
+Refer to `docs/lifecycle.md` for further information.
+
 ## CyberGIS Compute 
 
 A scalable middleware framework for enabling high-performance and data-intensive geospatial research and education on CyberGIS-Jupyter
