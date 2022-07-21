@@ -1,7 +1,16 @@
 # CyberGIS Compute Core
+
 Scalable middleware framework for enabling high-performance and data-intensive geospatial research and education on CyberGISX.
 
 ![alt text](images/cybergis-architecture.png "CybergGIS Compute Core Architecture")
+
+## CyberGIS Compute 
+
+A scalable middleware framework for enabling high-performance and data-intensive geospatial research and education on CyberGIS-Jupyter
+
+- CyberGIS Compute Core: middleware server that automates job submission to HPC.
+- CyberberGIS Compute Python SDK: interactive client for Jupyter Notebook with code-less UI support.
+- Contribution: developer API that enables model contribution with little to no modification for existing code.
 
 ## Supported Git Projects
 | Name                                  | URL                                                                              |
