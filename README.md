@@ -35,7 +35,7 @@ Scalable middleware framework for enabling high-performance and data-intensive g
     git clone https://github.com/cybergis/cybergis-compute-core.git
     cd cybergis-compute-core
     # Install npm packages
-    npm run build
+    npm install && npm run build
     ```
     
 3. Checking core configurations. Refer to [link](#-Configurations) 
